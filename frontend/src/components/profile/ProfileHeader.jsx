@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, LogOut, MapPin, Star, Pencil, ShieldCheck } from 'lucide-react';
+import { Settings, LogOut, MapPin, Star, Pencil } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { auth } from '@/lib/api';
 import { Link } from 'react-router-dom';
@@ -23,14 +23,11 @@ export default function ProfileHeader({ user }) {
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-lg font-extrabold text-white">My Profile</h1>
           <div className="flex items-center gap-2">
-            <Link to="/AuthDemo">
+            <Link to="/Settings">
               <button className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                <ShieldCheck className="w-4 h-4 text-white" />
+                <Settings className="w-4 h-4 text-white" />
               </button>
             </Link>
-            <button className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-              <Settings className="w-4 h-4 text-white" />
-            </button>
             <button onClick={handleLogout} className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center">
               <LogOut className="w-4 h-4 text-white" />
             </button>

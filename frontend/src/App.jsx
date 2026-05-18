@@ -13,7 +13,7 @@ import Messages from '@/pages/Messages';
 import Chat from '@/pages/Chat';
 import Profile from '@/pages/Profile';
 import Community from '@/pages/Community';
-import AuthDemo from '@/pages/AuthDemo';
+import Settings from '@/pages/Settings';
 import { auth } from '@/lib/api';
 
 // Simple guard: redirect to /Welcome if no token stored
@@ -44,7 +44,7 @@ function App() {
             <Route path="/Messages" element={<Messages />} />
             <Route path="/Profile" element={<Profile />} />
             <Route path="/Community" element={<Community />} />
-            <Route path="/AuthDemo" element={<AuthDemo />} />
+            <Route path="/Settings" element={<Settings />} />
           </Route>
           <Route path="*" element={<PageNotFound />} />
         </Routes>

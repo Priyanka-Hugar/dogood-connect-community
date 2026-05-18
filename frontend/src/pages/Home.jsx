@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { skillPosts } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const categoryColors = {
@@ -203,8 +204,9 @@ export default function Home() {
 
   const offersFromDB = posts.filter(p => p.type === 'offer');
   const requestsFromDB = posts.filter(p => p.type === 'request');
-  const allOffers = offersFromDB.length > 0 ? offersFromDB : DEMO_OFFERS;
-  const allRequests = requestsFromDB.length > 0 ? requestsFromDB : DEMO_REQUESTS;
+  // Always merge DB posts with demo posts; DB posts shown first
+  const allOffers = [...offersFromDB, ...DEMO_OFFERS];
+  const allRequests = [...requestsFromDB, ...DEMO_REQUESTS];
   const feed = activeTab === 'offers' ? allOffers : allRequests;
 
   const handleAiMatch = async () => {
@@ -212,15 +214,16 @@ export default function Home() {
     setAiLoading(true);
     setAiError('');
     setAiResults(null);
-    const matched = await fetch('http://localhost:4000/api/match-skills', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: aiQuery, posts: feed }),
-    }).then(r => r.json());
-    if (matched?.ranked) {
-      setAiResults(matched.ranked);
-    } else {
-      setAiError(matched?.error || 'Something went wrong. Try again.');
+    try {
+      const response = await base44.functions.invoke('matchSkills', { query: aiQuery, posts: feed });
+      const matched = response.data;
+      if (matched?.ranked) {
+        setAiResults(matched.ranked);
+      } else {
+        setAiError(matched?.error || 'Something went wrong. Try again.');
+      }
+    } catch (e) {
+      setAiError(e.message || 'Something went wrong. Try again.');
     }
     setAiLoading(false);
   };

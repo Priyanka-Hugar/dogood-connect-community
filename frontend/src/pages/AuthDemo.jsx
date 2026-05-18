@@ -25,60 +25,55 @@ function ResultBox({ result }) {
 
 export default function AuthDemo() {
   const [tab, setTab] = useState('register');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('priyanka.hugar@gmail.com');
+  const [password, setPassword] = useState('Pilkothi@2');
   const [verifyToken, setVerifyToken] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
-  // Hardcoded demo data for "Pilkothi@2"
   const DEMO_HASH = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LzTL.CZzqi';
   const DEMO_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InByaXlhbmthLmh1Z2FyQGdtYWlsLmNvbSIsInN1YiI6InByaXlhbmthLmh1Z2FyQGdtYWlsLmNvbSIsImlhdCI6MTc3NjAwMDAwMCwiZXhwIjoxNzc2MDAzNjAwfQ.demoSignatureForPilkothi2';
 
-  const call = async (action, payload) => {
+  const call = (action, payload) => {
     setLoading(true);
     setResult(null);
-    await new Promise(r => setTimeout(r, 600)); // simulate processing
-
-    if (action === 'register') {
-      const data = {
-        success: true,
-        message: 'User registered successfully',
-        demo: {
-          plain_password: payload.password,
-          bcrypt_hash: DEMO_HASH,
-          jwt_token: DEMO_TOKEN,
-        }
-      };
-      setResult(data);
-      setVerifyToken(DEMO_TOKEN);
-    } else if (action === 'login') {
-      const data = {
-        success: true,
-        message: 'Login successful',
-        demo: {
-          bcrypt_verified: true,
-          jwt_token: DEMO_TOKEN,
-        }
-      };
-      setResult(data);
-      setVerifyToken(DEMO_TOKEN);
-    } else if (action === 'verify') {
-      const data = {
-        success: true,
-        message: 'Token is valid',
-        payload: {
-          email: 'priyanka.hugar@gmail.com',
-          sub: 'priyanka.hugar@gmail.com',
-          iat: 1776000000,
-          exp: 1776003600,
-        }
-      };
-      setResult(data);
-    }
-
-    setLoading(false);
+    setTimeout(() => {
+      if (action === 'register') {
+        setResult({
+          success: true,
+          message: 'User registered successfully',
+          demo: {
+            plain_password: payload.password,
+            bcrypt_hash: DEMO_HASH,
+            jwt_token: DEMO_TOKEN,
+          }
+        });
+        setVerifyToken(DEMO_TOKEN);
+      } else if (action === 'login') {
+        setResult({
+          success: true,
+          message: 'Login successful',
+          demo: {
+            bcrypt_verified: true,
+            jwt_token: DEMO_TOKEN,
+          }
+        });
+        setVerifyToken(DEMO_TOKEN);
+      } else if (action === 'verify') {
+        setResult({
+          success: true,
+          message: 'Token is valid',
+          payload: {
+            email: 'priyanka.hugar@gmail.com',
+            sub: 'priyanka.hugar@gmail.com',
+            iat: 1776000000,
+            exp: 1776003600,
+          }
+        });
+      }
+      setLoading(false);
+    }, 600);
   };
 
   const tabs = [
