@@ -9,7 +9,7 @@ const API_HOST =
     ? window.location.hostname
     : 'localhost';
 
-const BASE_URL = `http://${API_HOST}:4000/api`;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${API_HOST}:4000/api`;
 
 export function getToken() {
   return localStorage.getItem('dogood_token');

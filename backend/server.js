@@ -7,6 +7,10 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000',
+  ...(process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
 ];
 
 app.use(cors({
@@ -28,5 +32,6 @@ app.use('/api/messages', require('./routes/messages'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/match-skills', require('./routes/matchSkills'));
 
-app.listen(4000, () => console.log('DoGood backend running on http://localhost:4000'));
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`DoGood backend running on port ${PORT}`));
 app.get('/', (req, res) => res.json({ status: 'DoGood API running ✅' }));
