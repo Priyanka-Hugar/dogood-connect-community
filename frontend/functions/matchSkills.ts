@@ -1,5 +1,3 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
-
 // Tokenize a string into lowercase words, stripping punctuation
 function tokenize(str) {
   return (str || '').toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(Boolean);
@@ -79,10 +77,6 @@ function blendScores(semanticScore, kwBoost, phraseBoostScore, catBoost) {
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-
     const { query, posts } = await req.json();
 
     if (!query || !posts || posts.length === 0) {

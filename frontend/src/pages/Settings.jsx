@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, User, Lock, MapPin, HelpCircle, Mail, Shield, ChevronRight, Eye, EyeOff, Check, X } from 'lucide-react';
+import { ChevronLeft, User, Lock, MapPin, HelpCircle, Mail, Shield, ChevronRight, Eye, EyeOff, Check, X, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -42,20 +42,20 @@ function Modal({ title, onClose, children }) {
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center"
+      className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center pb-16"
       onClick={onClose}
     >
       <motion.div
         initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
         className="bg-white w-full max-w-lg rounded-t-3xl flex flex-col"
-        style={{ maxHeight: '90vh' }}
+        style={{ maxHeight: 'calc(90vh - 64px)' }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0">
           <h2 className="text-lg font-extrabold text-foreground">{title}</h2>
           <button onClick={onClose} className="p-1 text-muted-foreground"><X className="w-5 h-5" /></button>
         </div>
-        <div className="overflow-y-auto px-6 pb-24">
+        <div className="overflow-y-auto px-6 pb-6">
           {children}
         </div>
       </motion.div>
@@ -67,6 +67,8 @@ export default function Settings() {
   const [activeModal, setActiveModal] = useState(null);
   const [locationEnabled, setLocationEnabled] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Edit Profile state
   const [name, setName] = useState('');
@@ -95,6 +97,15 @@ export default function Settings() {
   const handleSaveProfile = () => {
     setSaved(true);
     setTimeout(() => { setSaved(false); setActiveModal(null); }, 1200);
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    // Clear local storage and logout
+    localStorage.clear();
+    setTimeout(() => {
+      window.location.href = '/Welcome';
+    }, 800);
   };
 
   const handleChangePassword = () => {
@@ -150,6 +161,18 @@ export default function Settings() {
           toggled={locationEnabled}
         />
         <SettingsRow icon={Shield} label="Privacy Policy" sublabel="How we handle your data" onClick={() => setActiveModal('privacy')} />
+      </div>
+
+      {/* Danger Zone */}
+      <SectionHeader title="Account Actions" />
+      <div className="mx-4 rounded-2xl overflow-hidden border border-red-100">
+        <SettingsRow
+          icon={Trash2}
+          label="Delete Account"
+          sublabel="Permanently remove your account and data"
+          onClick={() => setShowDeleteConfirm(true)}
+          danger
+        />
       </div>
 
       {/* Support */}
@@ -279,6 +302,47 @@ export default function Settings() {
           </Modal>
         )}
 
+      </AnimatePresence>
+
+      {/* Delete Account Confirmation */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-6"
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white w-full max-w-sm rounded-2xl p-6"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-6 h-6 text-red-500" />
+              </div>
+              <h2 className="text-lg font-extrabold text-center text-foreground mb-2">Delete Account?</h2>
+              <p className="text-sm text-muted-foreground text-center leading-relaxed mb-6">
+                This will permanently delete your account and remove all your data from our records. This action cannot be undone.
+              </p>
+              <div className="space-y-2">
+                <Button
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+                  className="w-full h-11 rounded-full bg-red-500 hover:bg-red-600 text-white font-bold"
+                >
+                  {deleting ? 'Deleting...' : 'Yes, Delete My Account'}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="w-full h-11 rounded-full font-bold"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );

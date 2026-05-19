@@ -1,10 +1,15 @@
 /**
  * Central API client for the self-hosted Express backend.
- * Base URL: http://localhost:4000
+ * Base URL: uses the current browser host in development.
  * JWT token is stored in localStorage under 'dogood_token'.
  */
 
-const BASE_URL = 'http://localhost:4000/api';
+const API_HOST =
+  typeof window !== 'undefined' && window.location.hostname
+    ? window.location.hostname
+    : 'localhost';
+
+const BASE_URL = `http://${API_HOST}:4000/api`;
 
 export function getToken() {
   return localStorage.getItem('dogood_token');
@@ -96,23 +101,25 @@ export const auth = {
   isAuthenticated: () => !!getToken(),
 };
 
-// SkillPosts — demo mode (no backend)
+import { base44 } from '@/api/base44Client';
+
+// SkillPosts — persisted to Base44 database
 export const skillPosts = {
-  list: () => Promise.resolve([]),
-  create: (data) => Promise.resolve({ id: Date.now().toString(), ...data }),
-  update: (id, data) => Promise.resolve({ id, ...data }),
-  delete: (id) => Promise.resolve(),
-  filter: (filterObj) => Promise.resolve([]),
+  list: () => base44.entities.SkillPost.list('-created_date', 50),
+  create: (data) => base44.entities.SkillPost.create(data),
+  update: (id, data) => base44.entities.SkillPost.update(id, data),
+  delete: (id) => base44.entities.SkillPost.delete(id),
+  filter: (filterObj) => base44.entities.SkillPost.filter(filterObj, '-created_date', 50),
 };
 
-// Gallery — demo mode
+// Gallery — persisted to Base44 database
 export const gallery = {
-  list: () => Promise.resolve([]),
-  create: (data) => Promise.resolve({ id: Date.now().toString(), ...data }),
+  list: () => base44.entities.GalleryPost.list('-created_date', 50),
+  create: (data) => base44.entities.GalleryPost.create(data),
 };
 
-// Messages — demo mode
+// Messages — persisted to Base44 database
 export const messages = {
-  list: () => Promise.resolve([]),
-  create: (data) => Promise.resolve({ id: Date.now().toString(), ...data }),
+  list: () => base44.entities.ChatMessage.list('-created_date', 50),
+  create: (data) => base44.entities.ChatMessage.create(data),
 };

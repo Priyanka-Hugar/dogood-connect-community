@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Search, SlidersHorizontal, List, Map, MapPin, Clock, Star, Sparkles, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { skillPosts } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const categoryColors = {
   teaching: 'bg-blue-100 text-blue-700',
@@ -63,7 +64,7 @@ const DEMO_REQUESTS = [
   },
 ];
 
-function FeedCard({ post }) {
+function FeedCard({ post, onConnect }) {
   const isOffer = post.type === 'offer';
   const initials = (post.user_name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   const avatarBg = isOffer ? 'bg-blue-100 text-dogood-blue' : 'bg-green-100 text-dogood-green';
@@ -134,6 +135,7 @@ function FeedCard({ post }) {
         </div>
         <Button
           size="sm"
+          onClick={onConnect}
           className={`rounded-xl font-bold text-xs px-5 h-8 ${
             isOffer ? 'bg-dogood-blue hover:bg-dogood-blue/90 text-white' : 'bg-dogood-green hover:bg-dogood-green/90 text-white'
           }`}
@@ -190,6 +192,7 @@ function openGoogleMapsWithPins(posts) {
 }
 
 export default function Home() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('offers');
   const [searchQuery, setSearchQuery] = useState('');
   const [aiQuery, setAiQuery] = useState('');
@@ -199,12 +202,22 @@ export default function Home() {
 
   const { data: posts = [] } = useQuery({
     queryKey: ['skillPosts'],
-    queryFn: () => skillPosts.list(),
+    queryFn: async () => {
+      try {
+        return await skillPosts.list();
+      } catch {
+        return [];
+      }
+    },
   });
 
-  const offersFromDB = posts.filter(p => p.type === 'offer');
-  const requestsFromDB = posts.filter(p => p.type === 'request');
-  // Always merge DB posts with demo posts; DB posts shown first
+  const localPosts = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem('local_posts') || '[]'); } catch { return []; }
+  }, []);
+
+  const allDBPosts = [...localPosts, ...posts];
+  const offersFromDB = allDBPosts.filter(p => p.type === 'offer');
+  const requestsFromDB = allDBPosts.filter(p => p.type === 'request');
   const allOffers = [...offersFromDB, ...DEMO_OFFERS];
   const allRequests = [...requestsFromDB, ...DEMO_REQUESTS];
   const feed = activeTab === 'offers' ? allOffers : allRequests;
@@ -215,8 +228,14 @@ export default function Home() {
     setAiError('');
     setAiResults(null);
     try {
-      const response = await base44.functions.invoke('matchSkills', { query: aiQuery, posts: feed });
-      const matched = response.data;
+      const { appParams } = await import('@/lib/app-params');
+      const baseUrl = appParams.appBaseUrl || window.location.origin;
+      const res = await fetch(`${baseUrl}/api/functions/matchSkills`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: aiQuery, posts: feed }),
+      });
+      const matched = await res.json();
       if (matched?.ranked) {
         setAiResults(matched.ranked);
       } else {
@@ -355,7 +374,7 @@ export default function Home() {
                   </span>
                 </div>
               )}
-              <FeedCard post={post} />
+              <FeedCard post={post} onConnect={() => navigate('/Messages')} />
             </motion.div>
           ))}
         </AnimatePresence>

@@ -42,7 +42,7 @@ export default function ProfileHeader({ user }) {
           <div className="flex-1 min-w-0">
             <h2 className="text-white font-extrabold text-lg">{name}</h2>
             <p className="text-white/80 text-xs leading-relaxed">
-              Welcome to DoGood! Complete your profile to start helping and receiving help from your community.
+              {user?.bio || `Welcome to DoGood! Complete your profile to start helping your community.`}
             </p>
             <p className="text-white/90 text-xs mt-1 flex items-center gap-1">
               <MapPin className="w-3 h-3" /> {location}

@@ -294,7 +294,7 @@ export default function Welcome() {
                   <label className="text-sm font-bold text-slate-700 mb-1.5 block">Email</label>
                   <Input
                     type="email"
-                    placeholder="priyanka.hugar@gmail.com"
+                    placeholder="anonymous@dogood.com"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     className="h-12 rounded-xl text-base"
